@@ -1,0 +1,94 @@
+import tkinter as tk
+from tkinter import messagebox
+import random
+
+# Daftar langkah SOP
+steps = [
+    "Cuci tangan dan kenakan APD",
+    "Siapkan perlengkapan cleaning kit",
+    "Angkat aksesoris yang bisa dipindah",
+    "Buang sampah",
+    "Bersihkan toilet",
+    "Bersihkan shower, bathtub, dan wastafel",
+    "Bersihkan lantai dan dinding",
+    "Bersihkan kaca dan cermin",
+    "Pasang kembali aksesoris",
+    "Pemeriksaan akhir (quality check)"
+]
+
+# Urutan benar
+correct_order = steps.copy()
+
+# Fungsi untuk mengacak urutan
+def shuffle_steps():
+    global steps
+    random.shuffle(steps)
+    for i, btn in enumerate(button_buttons):
+        btn['text'] = steps[i]
+        btn['bg'] = "lightblue"
+    global first
+    first = None
+
+# Fungsi mengecek urutan
+def check_order():
+    user_order = [btn['text'] for btn in button_buttons]
+    if user_order == correct_order:
+        messagebox.showinfo("Selamat!", "Urutan benar! Restroom siap sesuai SOP.")
+    else:
+        messagebox.showwarning("Oops!", "Urutan salah, coba lagi!")
+
+# Fungsi swap tombol ketika diklik
+def swap(i):
+    global first
+    if first is None:
+        first = i
+        button_buttons[i].config(bg="gold")  # tandai tombol pertama
+    else:
+        # Tukar posisi teks tombol
+        button_buttons[first]['text'], button_buttons[i]['text'] = button_buttons[i]['text'], button_buttons[first]['text']
+        button_buttons[first].config(bg="lightblue")  # kembalikan warna
+        first = None
+
+# GUI utama
+root = tk.Tk()
+root.title("Puzzle Membersihkan Restroom")
+root.configure(bg="navy")
+root.geometry("800x600")  # lebih lebar untuk dua kolom
+
+first = None
+button_buttons = []
+
+# Label instruksi
+label = tk.Label(root, text="Urutan Tata Cara Membersihkan Restroom", 
+                 bg="navy", fg="gold", font=("Helvetica", 14, "bold"), wraplength=750)
+label.pack(pady=20)
+
+# Frame utama: kiri untuk tombol langkah, kanan untuk tombol aksi
+main_frame = tk.Frame(root, bg="navy")
+main_frame.pack(pady=10)
+
+# Frame kiri: tombol langkah
+steps_frame = tk.Frame(main_frame, bg="navy")
+steps_frame.pack(side="left", padx=20)
+
+for i, step in enumerate(steps):
+    btn = tk.Button(steps_frame, text=step, width=50, height=2, bg="lightblue", fg="navy",
+                    command=lambda i=i: swap(i))
+    btn.grid(row=i, column=0, pady=5)
+    button_buttons.append(btn)
+
+# Frame kanan: tombol Acak dan Cek
+action_frame = tk.Frame(main_frame, bg="navy")
+action_frame.pack(side="left", padx=20, anchor="n")  # anchor="n" supaya di atas
+
+shuffle_btn = tk.Button(action_frame, text="Acak Urutan", bg="gold", fg="navy", font=("Helvetica", 12, "bold"), width=20, command=shuffle_steps)
+shuffle_btn.pack(pady=10)
+
+check_btn = tk.Button(action_frame, text="Cek Urutan", bg="gold", fg="navy", font=("Helvetica", 12, "bold"), width=20, command=check_order)
+check_btn.pack(pady=10)
+
+# Acak urutan di awal
+shuffle_steps()
+
+root.mainloop()
+
